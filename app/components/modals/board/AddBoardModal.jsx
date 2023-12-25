@@ -18,7 +18,7 @@ const AddBoardModal = () => {
   const [loading, setLoading] = useState(false);
 
   const [boardDetails, setBoardDetails] = useState({
-    name: 'test',
+    name: '',
     columns: [{ name: 'Todo' }],
   });
 
