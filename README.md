@@ -35,17 +35,13 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
-edit task // if status changes, change column, {subtasks}
+edit task // if status changes, change column
 edit board
 
-add 'X' for closing modals
-fix column names (when adding a task)
-make clientside full working FIRST (add subtasks, input functionality)
-
-reusable modal component
 imports
 validation
 
-rerenders in (sidebar, menuModal)
 if there are no tasks, disable add task button
 reset states after creating
+
+reusable modal component !!!
