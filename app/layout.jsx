@@ -28,7 +28,7 @@ export default function RootLayout() {
       <body suppressHydrationWarning={true}>
         <div className="flex">
           <Sidebar mode="dark" />
-          <div className="flex flex-col w-full">
+          <div className="flex flex-col w-full h-screen">
             <Nav mode="dark" />
             <Home mode="dark" />
           </div>
