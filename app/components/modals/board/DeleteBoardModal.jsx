@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 
-import useDeleteBoardModal from '../../../hooks/board/useDeleteBoardModal';
+import useDeleteBoardModal from '@/app/hooks/board/useDeleteBoardModal';
 
-import useGlobals from '../../../hooks/useGlobals';
+import useGlobals from '@/app/hooks/useGlobals';
 
 import { toast } from 'react-hot-toast';
 
@@ -14,6 +14,7 @@ const DeleteBoardModal = () => {
 
   const [toggleStatus, setToggleStatus] = useState(false);
   const [showModal, setShowModal] = useState(deleteBoardModal.isOpen);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setShowModal(deleteBoardModal.isOpen);
@@ -25,6 +26,7 @@ const DeleteBoardModal = () => {
   }
 
   const handleDelete = async () => {
+    setLoading(true);
     try {
       await fetch('/api/board/delete', {
         method: 'DELETE',
@@ -47,6 +49,7 @@ const DeleteBoardModal = () => {
     } finally {
       setShowModal(false);
       setToggleStatus(false);
+      setLoading(false);
     }
   };
 
@@ -80,7 +83,7 @@ const DeleteBoardModal = () => {
               className="px-5 py-2 bg-red hover:bg-lightRed font-semibold rounded-full text-white w-full"
               onClick={handleDelete}
             >
-              Delete
+              {loading ? 'Deleting...' : 'Delete'}
             </button>
             <button
               className="px-5 py-2 bg-white hover:bg-lightGray font-semibold rounded-full text-mainPurple w-full"
