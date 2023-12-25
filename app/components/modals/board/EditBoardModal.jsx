@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 
-import useEditBoardModal from '../../../hooks/board/useEditBoardModal';
+import useEditBoardModal from '@/app/hooks/board/useEditBoardModal';
+import useGlobals from '@/app/hooks/useGlobals';
 
 import CustomInput from '../../CustomInput';
-import useGlobals from '../../../hooks/useGlobals';
-import { data } from '../../../constants';
+import { data, images } from '@/app/constants';
 
+import Image from 'next/image';
 import { toast } from 'react-hot-toast';
 
 const EditBoardModal = () => {
@@ -54,7 +55,16 @@ const EditBoardModal = () => {
       `}
       >
         <div className="bg-darkGray rounded-md flex flex-col gap-6 px-6 py-6">
-          <h2 className="font-bold text-white text-[18px]">Edit Board</h2>
+          <div className="flex justify-between items-center">
+            <h2 className="font-bold text-white text-[18px]">Edit Board</h2>
+            <div onClick={handleClose}>
+              <Image
+                src={images.iconClose}
+                alt="delete"
+                className="w-[15px] h-[15px] hover:cursor-pointer"
+              />
+            </div>
+          </div>
           <CustomInput
             label="Board Name"
             placeholder={currentBoard}
