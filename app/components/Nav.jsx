@@ -79,7 +79,7 @@ const Nav = ({ mode }) => {
           >
             <h2 className="text-[18px] text-white font-semibold tracking-wider">{globals.currentBoard}</h2>
             <Image
-              src={menuModal.isOpen ? images.iconChevronDown : images.iconChevronUp}
+              src={!menuModal.isOpen ? images.iconChevronDown : images.iconChevronUp}
               alt="up"
             />
           </div>
