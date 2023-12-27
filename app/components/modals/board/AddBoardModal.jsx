@@ -19,22 +19,37 @@ const AddBoardModal = () => {
 
   const [boardDetails, setBoardDetails] = useState({
     name: '',
-    columns: [{ name: 'Todo' }],
+    columns: [],
   });
 
   const addColumn = () => {
     if (boardDetails.columns.length !== 3) {
-      const colName = boardDetails.columns.length === 1 ? { name: 'Doing' } : { name: 'Done' };
-      setBoardDetails({ ...boardDetails, columns: [...boardDetails.columns, colName] });
+      let colName;
+      switch (boardDetails.columns.length) {
+        case 0:
+          colName = { name: 'Todo' };
+          break;
+        case 1:
+          colName = { name: 'Doing' };
+          break;
+        case 2:
+          colName = { name: 'Done' };
+          break;
+        default:
+          colName = { name: 'Todo' };
+          break;
+      }
+      setBoardDetails((prevState) => ({
+        ...prevState,
+        columns: [...prevState.columns, colName],
+      }));
     }
   };
 
   const deleteColumn = (col) => {
     const updatedColumns = boardDetails.columns.filter((colName) => colName !== col);
 
-    if (col.name !== 'Todo') {
-      setBoardDetails({ ...boardDetails, columns: updatedColumns });
-    }
+    setBoardDetails({ ...boardDetails, columns: updatedColumns });
   };
 
   useEffect(() => {
@@ -130,11 +145,7 @@ const AddBoardModal = () => {
               >
                 <CustomInput
                   value={boardDetails.columns[index].name}
-                  setValue={(e) => {
-                    const updatedColumns = [...boardDetails.columns];
-                    updatedColumns[index].name = e.target.value;
-                    setBoardDetails({ ...boardDetails, columns: updatedColumns });
-                  }}
+                  setValue={() => {}}
                   deleteIcon
                   handleDelete={() => deleteColumn(column)}
                   placeholder="Todo"

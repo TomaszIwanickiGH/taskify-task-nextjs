@@ -6,7 +6,7 @@ import useEditBoardModal from '@/app/hooks/board/useEditBoardModal';
 import useGlobals from '@/app/hooks/useGlobals';
 
 import CustomInput from '../../CustomInput';
-import { data, images } from '@/app/constants';
+import { images } from '@/app/constants';
 
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
@@ -16,13 +16,57 @@ const EditBoardModal = () => {
   const editBoardModal = useEditBoardModal();
 
   const currentBoard = globals.currentBoard;
-  const board = data.boards.filter((board) => board.name === currentBoard);
-  const columns = board.map((item) => item.columns);
 
   const [toggleStatus, setToggleStatus] = useState(false);
   const [showModal, setShowModal] = useState(editBoardModal.isOpen);
+  const [loading, setLoading] = useState(false);
+
+  const fetchedBoards = globals.fetchedBoards;
+  const board = fetchedBoards.boards.filter((board) => board.name === globals.currentBoard);
+  const columns = board.map((item) => item.columns);
+
+  const [updatedBoard, setUpdatedBoard] = useState({
+    name: currentBoard,
+    columns: columns,
+  });
+
+  //Edit Board functionality
+
+  const addColumn = () => {
+    if (updatedBoard.columns.length !== 3) {
+      let colName;
+      switch (updatedBoard.columns.length) {
+        case 0:
+          colName = { name: 'Todo' };
+          break;
+        case 1:
+          colName = { name: 'Doing' };
+          break;
+        case 2:
+          colName = { name: 'Done' };
+          break;
+        default:
+          colName = { name: 'Todo' };
+          break;
+      }
+      setUpdatedBoard((prevState) => ({
+        ...prevState,
+        columns: [...prevState.columns, colName],
+      }));
+    }
+  };
+
+  const deleteColumn = (col) => {
+    const updatedColumns = updatedBoard.columns.filter((column) => column !== col);
+    setUpdatedBoard({ ...updatedBoard, columns: updatedColumns });
+  };
 
   useEffect(() => {
+    setUpdatedBoard({
+      name: currentBoard,
+      columns: columns[0],
+    });
+
     setShowModal(editBoardModal.isOpen);
     setToggleStatus(toggleStatus);
   }, [editBoardModal.isOpen, toggleStatus]);
@@ -31,13 +75,38 @@ const EditBoardModal = () => {
     return null;
   }
 
+  const handleUpdate = async () => {
+    setLoading(true);
+    try {
+      await fetch('/api/board/update', {
+        method: 'PATCH',
+        body: JSON.stringify({
+          currentBoard,
+          updatedBoard,
+        }),
+      });
+
+      setTimeout(() => {
+        editBoardModal.onClose();
+        toast.success('Board edited successfully!');
+      }, 500);
+
+      globals.setCurrentBoard(updatedBoard.name);
+      globals.setHasChanged(globals.hasChanged);
+    } catch (error) {
+    } finally {
+      setLoading(false);
+      setShowModal(false);
+      setToggleStatus(false);
+    }
+  };
+
   const handleClose = () => {
     setShowModal(false);
     setToggleStatus(false);
 
     setTimeout(() => {
       editBoardModal.onClose();
-      toast.success('Board edited successfully!');
     }, 500);
   };
 
@@ -66,33 +135,41 @@ const EditBoardModal = () => {
             </div>
           </div>
           <CustomInput
+            value={updatedBoard.name}
+            setValue={(e) => setUpdatedBoard({ ...updatedBoard, name: e.target.value })}
             label="Board Name"
             placeholder={currentBoard}
           />
           <div>
             <h3 className="font-semibold text-[15px] mb-2 text-white">Board Columns</h3>
             <div className="flex flex-col gap-2">
-              {columns.map((column) =>
-                column.map((item, index) => {
-                  if (item.tasks.length !== 0)
-                    return (
-                      <CustomInput
-                        key={index}
-                        deleteIcon
-                        placeholder={item.name}
-                      />
-                    );
-                })
-              )}
+              {updatedBoard.columns &&
+                updatedBoard.columns.length > 0 &&
+                updatedBoard.columns.map((column, index) => (
+                  <div key={index}>
+                    <CustomInput
+                      value={updatedBoard.columns[index].name}
+                      setValue={() => {}}
+                      deleteIcon
+                      handleDelete={() => deleteColumn(column)}
+                      placeholder={column.name}
+                    />
+                  </div>
+                ))}
             </div>
           </div>
-          <button className="px-5 py-2 bg-white hover:bg-lightGray font-semibold rounded-full text-mainPurple">+ Add New Column</button>
+          <button
+            onClick={addColumn}
+            className="px-5 py-2 bg-white hover:bg-lightGray font-semibold rounded-full text-mainPurple"
+          >
+            + Add New Column
+          </button>
           <div className="flex flex-col gap-8">
             <button
               className="px-5 py-2 bg-mainPurple hover:bg-lightPurple font-semibold rounded-full text-white"
-              onClick={handleClose}
+              onClick={handleUpdate}
             >
-              Save Changes
+              {loading ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </div>
