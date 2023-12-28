@@ -71,6 +71,7 @@ const TaskInfoModal = () => {
         }),
       });
 
+      console.log(updatedTask);
       setTimeout(() => {
         editTaskModal.onClose();
         toast.success('Task edited successfully!');
@@ -160,7 +161,7 @@ const TaskInfoModal = () => {
                 className="flex justify-between py-2 px-3 border-[1px] rounded-lg border-neutral-600 bg-darkGray hover:cursor-pointer"
                 onClick={() => setToggleStatus((prev) => !prev)}
               >
-                {updateTask.status ? <h2 className="text-neutral-500">{updateTask.status}</h2> : <h2 className="text-neutral-500">{status ? status : 'Todo'}</h2>}
+                {updatedTask.status ? <h2 className="text-neutral-500">{updatedTask.status}</h2> : <h2 className="text-neutral-500">{status ? status : 'Todo'}</h2>}
                 <div className="flex justify-center items-center">
                   <Image
                     src={!toggleStatus ? images.iconChevronUp : images.iconChevronDown}
