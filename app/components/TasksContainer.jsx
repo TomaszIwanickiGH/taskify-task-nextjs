@@ -34,7 +34,7 @@ const TasksContainer = ({ stage, tasks }) => {
             </div>
             <div
               onClick={() => addTaskModal.onOpen()}
-              className="h-[75vh] bg-[#2B2C37] rounded-lg flex justify-center items-center px-8 translate duration-300 hover:cursor-pointer hover:bg-[#2B2C37]/50"
+              className="md:h-[75vh] h-[20vh] bg-[#2B2C37] rounded-lg flex justify-center items-center px-8 translate duration-300 hover:cursor-pointer hover:bg-[#2B2C37]/50"
             >
               <p className="text-[24px] text-mediumGray font-semibold">+ New Task</p>
             </div>
