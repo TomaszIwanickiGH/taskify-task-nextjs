@@ -19,7 +19,7 @@ const AddBoardModal = () => {
 
   const [boardDetails, setBoardDetails] = useState({
     name: '',
-    columns: [],
+    columns: [{ name: 'Todo' }],
   });
 
   const addColumn = () => {
