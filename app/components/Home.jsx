@@ -44,7 +44,7 @@ const Home = () => {
       ) : (
         <div
           onClick={() => editBoardModal.onOpen()}
-          className="h-[80vh] w-full bg-[#2B2C37] rounded-lg flex justify-center items-center px-8 translate duration-300 hover:cursor-pointer hover:bg-[#2B2C37]/50"
+          className="lg:h-[80vh] h-screen w-full bg-[#2B2C37] rounded-lg flex justify-center items-center px-8 translate duration-300 hover:cursor-pointer hover:bg-[#2B2C37]/50"
         >
           <p className="text-[24px] text-mediumGray font-semibold">+ New Column</p>
         </div>
