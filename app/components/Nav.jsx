@@ -26,6 +26,10 @@ const Nav = ({ mode }) => {
   //   window.addEventListener('resize', () => setToggleMenu(false));
   // }, [window.innerWidth]);
 
+  const board = globals.fetchedBoards.boards.filter((board) => board.name === globals.currentBoard);
+  const cols = board.map((item) => item.columns);
+  const columns = cols[0];
+
   return (
     <>
       <div className={`${mode === 'light' ? 'bg-white' : 'bg-darkGray'} px-6 border-b-[1px] border-b-neutral-700 lg:flex hidden justify-between items-center sticky top-0`}>
@@ -43,7 +47,8 @@ const Nav = ({ mode }) => {
         </div>
         <div className="flex justify-center items-center gap-4">
           <button
-            className="px-5 py-3 bg-mainPurple hover:bg-lightPurple font-semibold rounded-full text-white"
+            disabled={columns && columns.length === 0}
+            className={`px-5 py-3 bg-mainPurple  font-semibold rounded-full text-white ${columns && columns.length === 0 ? 'cursor-not-allowed bg-mainPurple/30 text-white/40' : 'cursor-pointer hover:bg-lightPurple'}`}
             onClick={() => {
               addTaskModal.onOpen();
               window.scrollTo(0, 0);
@@ -86,7 +91,8 @@ const Nav = ({ mode }) => {
         </div>
         <div className="flex justify-center items-center gap-4">
           <button
-            className="pt-1 pb-2 px-5 bg-mainPurple rounded-full text-white text-[18px] font-bold"
+            disabled={columns && columns.length === 0}
+            className={`pt-1 pb-2 px-5 bg-mainPurple rounded-full text-white text-[18px] font-bold ${columns && columns.length === 0 ? 'cursor-not-allowed bg-mainPurple/30 text-white/40' : 'cursor-pointer hover:bg-lightPurple'}`}
             onClick={() => {
               addTaskModal.onOpen();
               window.scrollTo(0, 0);
