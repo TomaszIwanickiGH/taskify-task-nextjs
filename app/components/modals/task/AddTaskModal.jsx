@@ -93,6 +93,12 @@ const AddTaskModal = () => {
   const handleClose = () => {
     setShowModal(false);
     setToggleStatus(false);
+    setNewTask({
+      title: '',
+      description: '',
+      status: addedStatus,
+      subtasks: [],
+    });
 
     setTimeout(() => {
       addTaskModal.onClose();

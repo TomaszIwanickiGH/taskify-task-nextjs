@@ -64,6 +64,10 @@ const AddBoardModal = () => {
   const handleClose = () => {
     setShowModal(false);
     setToggleStatus(false);
+    setBoardDetails({
+      name: '',
+      columns: [{ name: 'Todo' }],
+    });
 
     setTimeout(() => {
       addBoardModal.onClose();
