@@ -144,6 +144,7 @@ const AddBoardModal = () => {
                 className="mb-2"
               >
                 <CustomInput
+                  disabled={true}
                   value={boardDetails.columns[index].name}
                   setValue={() => {}}
                   deleteIcon

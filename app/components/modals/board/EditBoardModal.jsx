@@ -148,6 +148,7 @@ const EditBoardModal = () => {
                 updatedBoard.columns.map((column, index) => (
                   <div key={index}>
                     <CustomInput
+                      disabled={true}
                       value={updatedBoard.columns[index].name}
                       setValue={() => {}}
                       deleteIcon
