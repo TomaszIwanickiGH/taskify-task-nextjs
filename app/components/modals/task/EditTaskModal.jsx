@@ -71,7 +71,6 @@ const TaskInfoModal = () => {
         }),
       });
 
-      console.log(updatedTask);
       setTimeout(() => {
         editTaskModal.onClose();
         toast.success('Task edited successfully!');
