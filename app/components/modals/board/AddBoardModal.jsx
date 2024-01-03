@@ -16,6 +16,7 @@ const AddBoardModal = () => {
   const [toggleStatus, setToggleStatus] = useState(false);
   const [showModal, setShowModal] = useState(addBoardModal.isOpen);
   const [loading, setLoading] = useState(false);
+  const [validate, setValidate] = useState(false);
 
   const [boardDetails, setBoardDetails] = useState({
     name: '',
@@ -75,38 +76,42 @@ const AddBoardModal = () => {
   };
 
   const handleCreate = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/board/new', {
-        method: 'POST',
-        body: JSON.stringify({
-          name: boardDetails.name,
-          columns: boardDetails.columns,
-        }),
-      });
+    if (boardDetails.name === '') {
+      setValidate(true);
+    } else {
+      setLoading(true);
+      try {
+        const response = await fetch('/api/board/new', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: boardDetails.name,
+            columns: boardDetails.columns,
+          }),
+        });
 
-      setTimeout(() => {
-        addBoardModal.onClose();
-        if (response.ok) {
-          toast.success('Board created successfully!');
-        } else {
-          toast.error('Failed to create a board');
-        }
-      }, 500);
+        setTimeout(() => {
+          addBoardModal.onClose();
+          if (response.ok) {
+            toast.success('Board created successfully!');
+          } else {
+            toast.error('Failed to create a board');
+          }
+        }, 500);
 
-      globals.setHasChanged(globals.hasChanged);
-      globals.setCurrentBoard(boardDetails.name);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setShowModal(false);
-      setToggleStatus(false);
-      setLoading(false);
+        globals.setHasChanged(globals.hasChanged);
+        globals.setCurrentBoard(boardDetails.name);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setShowModal(false);
+        setToggleStatus(false);
+        setLoading(false);
 
-      setBoardDetails({
-        name: '',
-        columns: [{ name: 'Todo' }],
-      });
+        setBoardDetails({
+          name: '',
+          columns: [{ name: 'Todo' }],
+        });
+      }
     }
   };
 
@@ -134,30 +139,40 @@ const AddBoardModal = () => {
               />
             </div>
           </div>
-          <CustomInput
-            value={boardDetails.name}
-            setValue={(e) => setBoardDetails({ ...boardDetails, name: e.target.value })}
-            label="Board Name"
-            placeholder="e.g. Web Design"
-          />
           <div>
-            <h3 className="font-semibold text-[15px] mb-2 text-white">Board Columns</h3>
-            {boardDetails.columns.map((column, index) => (
-              <div
-                key={index}
-                className="mb-2"
-              >
-                <CustomInput
-                  disabled={true}
-                  value={boardDetails.columns[index].name}
-                  setValue={() => {}}
-                  deleteIcon
-                  handleDelete={() => deleteColumn(column)}
-                  placeholder="Todo"
-                />
-              </div>
-            ))}
+            <CustomInput
+              value={boardDetails.name}
+              setValue={(e) => {
+                setValidate(false);
+                const inputValue = e.target.value;
+                const capitalizedValue = inputValue.charAt(0).toUpperCase() + inputValue.slice(1);
+                setBoardDetails({ ...boardDetails, name: capitalizedValue });
+              }}
+              label="Board Name"
+              placeholder="e.g. Web Design"
+            />
+            {validate && <p className="mt-1 text-[14px] text-red">Board name can't be empty!</p>}
           </div>
+          {boardDetails.columns && boardDetails.columns.length > 0 && (
+            <div>
+              <h3 className="font-semibold text-[15px] mb-2 text-white">Board Columns</h3>
+              {boardDetails.columns.map((column, index) => (
+                <div
+                  key={index}
+                  className="mb-2"
+                >
+                  <CustomInput
+                    disabled={true}
+                    value={boardDetails.columns[index].name}
+                    setValue={() => {}}
+                    deleteIcon
+                    handleDelete={() => deleteColumn(column)}
+                    placeholder="Todo"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
           <button
             onClick={addColumn}
             className="px-5 py-2 bg-white hover:bg-lightGray font-semibold rounded-full text-mainPurple"

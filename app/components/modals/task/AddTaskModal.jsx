@@ -21,6 +21,8 @@ const AddTaskModal = () => {
 
   //Add task functionality
   const [loading, setLoading] = useState(false);
+  const [validate, setValidate] = useState(false);
+  const [validateSubtasks, setValidateSubtasks] = useState(false);
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -33,35 +35,43 @@ const AddTaskModal = () => {
   const columns = board.map((item) => item.columns);
 
   const createTask = async () => {
-    setLoading(true);
+    if (newTask.title === '' || (newTask.subtasks && newTask.subtasks.some((subtask) => subtask.title === ''))) {
+      if (newTask.title === '') {
+        setValidate(true);
+      }
+      if (newTask.subtasks && newTask.subtasks.some((subtask) => subtask.title === '')) {
+        setValidateSubtasks(true);
+      }
+    } else {
+      setLoading(true);
+      try {
+        const response = await fetch('/api/task/new', {
+          method: 'PATCH',
+          body: JSON.stringify({
+            boardName,
+            newTask,
+          }),
+        });
 
-    try {
-      const response = await fetch('/api/task/new', {
-        method: 'PATCH',
-        body: JSON.stringify({
-          boardName,
-          newTask,
-        }),
-      });
+        setTimeout(() => {
+          addTaskModal.onClose();
+          toast.success('Task added successfully!');
+        }, 500);
 
-      setTimeout(() => {
-        addTaskModal.onClose();
-        toast.success('Task added successfully!');
-      }, 500);
-
-      globals.setHasChanged(globals.hasChanged);
-      setNewTask({
-        title: '',
-        description: '',
-        status: addedStatus,
-        subtasks: [],
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setShowModal(false);
-      setToggleStatus(false);
-      setLoading(false);
+        globals.setHasChanged(globals.hasChanged);
+        setNewTask({
+          title: '',
+          description: '',
+          status: addedStatus,
+          subtasks: [],
+        });
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setShowModal(false);
+        setToggleStatus(false);
+        setLoading(false);
+      }
     }
   };
 
@@ -99,6 +109,8 @@ const AddTaskModal = () => {
       status: addedStatus,
       subtasks: [],
     });
+    setValidate(false);
+    setValidateSubtasks(false);
 
     setTimeout(() => {
       addTaskModal.onClose();
@@ -129,35 +141,57 @@ const AddTaskModal = () => {
               />
             </div>
           </div>
-          <CustomInput
-            value={newTask.title}
-            setValue={(e) => setNewTask({ ...newTask, title: e.target.value })}
-            label="Title"
-            placeholder="e.g. Take coffee break"
-          />
+          <div>
+            <CustomInput
+              value={newTask.title}
+              setValue={(e) => {
+                setValidate(false);
+                const inputValue = e.target.value;
+                const capitalizedValue = inputValue.charAt(0).toUpperCase() + inputValue.slice(1);
+                setNewTask({ ...newTask, title: capitalizedValue });
+              }}
+              label="Title"
+              placeholder="e.g. Take coffee break"
+            />
+            {validate && <p className="mt-1 text-[14px] text-red">Title can't be empty!</p>}
+          </div>
           <CustomInput
             value={newTask.description}
-            setValue={(e) => setNewTask({ ...newTask, description: e.target.value })}
+            setValue={(e) => {
+              const inputValue = e.target.value;
+              const capitalizedValue = inputValue.charAt(0).toUpperCase() + inputValue.slice(1);
+              setNewTask({ ...newTask, description: capitalizedValue });
+            }}
             textarea
             label="Description"
             placeholder="e.g. It’s always good to take a break. This 15 minute break will recharge the batteries a little."
           />
-          <h3 className="text-white font-semibold text-[15px] tracking-wider">Subtasks</h3>
-          {newTask.subtasks.map((subtask, index) => (
-            <div key={index}>
-              <CustomInput
-                value={newTask.subtasks[index].title}
-                setValue={(e) => {
-                  const updatedSubtasks = [...newTask.subtasks];
-                  updatedSubtasks[index].title = e.target.value;
-                  setNewTask({ ...newTask, subtasks: updatedSubtasks });
-                }}
-                handleDelete={() => deleteSubtask(subtask)}
-                deleteIcon
-                placeholder="e.g. Make coffee"
-              />
+          {newTask.subtasks && newTask.subtasks.length > 0 && (
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <p className="text-white font-semibold text-[15px] tracking-wider">Subtasks</p>
+                {validateSubtasks && <p className="text-[15px] text-red">(Make sure to fill all fo them)</p>}
+              </div>
+
+              {newTask.subtasks.map((subtask, index) => (
+                <div key={index}>
+                  <CustomInput
+                    value={newTask.subtasks[index].title}
+                    setValue={(e) => {
+                      setValidateSubtasks(false);
+                      const updatedSubtasks = [...newTask.subtasks];
+                      const inputValue = e.target.value;
+                      updatedSubtasks[index].title = inputValue.charAt(0).toUpperCase() + inputValue.slice(1);
+                      setNewTask({ ...newTask, subtasks: updatedSubtasks });
+                    }}
+                    handleDelete={() => deleteSubtask(subtask)}
+                    deleteIcon
+                    placeholder="e.g. Make coffee"
+                  />
+                </div>
+              ))}
             </div>
-          ))}
+          )}
           <button
             onClick={addSubtask}
             className="px-5 py-2 bg-white hover:bg-lightGray font-semibold rounded-full text-mainPurple"
