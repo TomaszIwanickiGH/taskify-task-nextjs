@@ -3,7 +3,7 @@ import Board from '@/app/models/board';
 
 export const POST = async (req, res) => {
   const { name, columns } = await req.json();
-  console.log(name, columns);
+
   try {
     await connectToDB();
 
