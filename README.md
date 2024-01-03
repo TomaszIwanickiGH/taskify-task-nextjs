@@ -35,10 +35,8 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
-if adding a task set status to 'Todo'
-
-make new columns inputs inmutable
 validation
+reset values on modal close
 
 reusable modal component !!!
 
