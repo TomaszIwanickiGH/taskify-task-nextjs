@@ -10,6 +10,8 @@ import useDeleteTaskModal from '../../hooks/task/useDeleteTaskModal';
 import MenuActions from '../MenuActions';
 import Subtask from '../Subtask';
 
+import { toast } from 'react-hot-toast';
+
 const TaskInfoModal = () => {
   const globals = useGlobals();
   const taskInfoModal = useTaskInfoModal();
@@ -18,15 +20,51 @@ const TaskInfoModal = () => {
 
   const [toggleMenu, setToggleMenu] = useState(false);
   const [showModal, setShowModal] = useState(taskInfoModal.isOpen);
-  const { title, description, status, subtasks, completedSubtasks } = globals.chosenTask;
+  const { id, title, description, status, subtasks, completedSubtasks } = globals.chosenTask;
+
+  const [updatedSubtasks, setUpdatedSubtasks] = useState({});
+  const [hasChanged, setHasChanged] = useState(false);
+  const [completed, setCompleted] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setUpdatedSubtasks(subtasks);
+
     setShowModal(taskInfoModal.isOpen);
-  }, [taskInfoModal.isOpen]);
+  }, [taskInfoModal.isOpen, updatedSubtasks]);
 
   if (!taskInfoModal.isOpen) {
     return null;
   }
+
+  const handleUpdate = async () => {
+    setLoading(true);
+    try {
+      await fetch('/api/subtask', {
+        method: 'PATCH',
+        body: JSON.stringify({
+          boardName: globals.currentBoard,
+          id,
+          status,
+          updatedSubtasks,
+          completed,
+        }),
+      });
+
+      setTimeout(() => {
+        taskInfoModal.onClose();
+        toast.success('Task edited successfully!');
+      }, 500);
+
+      globals.setHasChanged(globals.hasChanged);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setShowModal(false);
+      setLoading(false);
+      setHasChanged(false);
+    }
+  };
 
   const handleClose = () => {
     setShowModal(false);
@@ -70,19 +108,39 @@ const TaskInfoModal = () => {
           </div>
           <p className="text-mediumGray text-[15px]">{description ? description : 'No description for this task.'}</p>
           <h3 className="text-white font-semibold text-[15px] tracking-wider">
-            Subtasks ({completedSubtasks} of {subtasks.length})
+            Subtasks ({!hasChanged ? completedSubtasks : completed} of {subtasks.length})
           </h3>
           {subtasks.map((task, index) => (
             <Subtask
               key={index}
               isCompleted={task.isCompleted}
               title={task.title}
+              handleChange={() => {
+                setHasChanged(true);
+                let existingSubtask = subtasks[index];
+                existingSubtask.isCompleted = !existingSubtask.isCompleted;
+
+                setUpdatedSubtasks((prevState) => {
+                  const newState = [...prevState];
+                  newState[index] = existingSubtask;
+                  return newState;
+                });
+                setCompleted(updatedSubtasks.filter((sub) => sub.isCompleted).length);
+              }}
             />
           ))}
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-6">
             <p className="text-mediumGray">
               Current status: <span className="text-white font-bold tracking-wider">{status ? status : 'Todo'}</span>
             </p>
+            {hasChanged && (
+              <button
+                className="px-5 py-3 bg-mainPurple hover:bg-lightPurple font-semibold rounded-full text-white"
+                onClick={handleUpdate}
+              >
+                {loading ? 'Saving...' : 'Save Changes'}
+              </button>
+            )}
             <button
               className="px-5 py-3 bg-mainPurple hover:bg-lightPurple font-semibold rounded-full text-white"
               onClick={handleClose}
