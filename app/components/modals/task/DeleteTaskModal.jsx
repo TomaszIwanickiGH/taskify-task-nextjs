@@ -75,7 +75,9 @@ const DeleteTaskModal = () => {
       >
         <div className="bg-darkGray rounded-md flex flex-col gap-4 px-6 py-6">
           <h2 className="font-bold text-red text-[18px]">Delete this task?</h2>
-          <p className="text-[15px] text-neutral-400">Are you sure you want to delete the '{title}' task? This action will remove all columns and tasks and cannot be reversed.</p>
+          <p className="text-[15px] text-neutral-400">
+            Are you sure you want to delete the <span className="font-bold text-red tracking-wider">'{title}'</span> task? This action will remove all columns and tasks and cannot be reversed.
+          </p>
           <div className="flex justify-center items-center gap-4 w-full mt-1">
             <button
               className="px-5 py-2 bg-red hover:bg-lightRed font-semibold rounded-full text-white w-full"
