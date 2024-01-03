@@ -2,13 +2,16 @@
 
 import { useState } from 'react';
 
-const Subtask = ({ isCompleted, title }) => {
+const Subtask = ({ isCompleted, title, handleChange }) => {
   const [completed, setCompleted] = useState(isCompleted);
 
   return (
     <div
       className="p-3 flex items-center gap-4 bg-veryDarkGray hover:cursor-pointer"
-      onClick={() => setCompleted((prev) => !prev)}
+      onClick={() => {
+        setCompleted((prev) => !prev);
+        handleChange();
+      }}
     >
       <input
         onChange={() => {}}
