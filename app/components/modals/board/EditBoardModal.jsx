@@ -20,6 +20,7 @@ const EditBoardModal = () => {
   const [toggleStatus, setToggleStatus] = useState(false);
   const [showModal, setShowModal] = useState(editBoardModal.isOpen);
   const [loading, setLoading] = useState(false);
+  const [validate, setValidate] = useState(false);
 
   const fetchedBoards = globals.fetchedBoards;
   const board = fetchedBoards.boards.filter((board) => board.name === globals.currentBoard);
@@ -76,28 +77,32 @@ const EditBoardModal = () => {
   }
 
   const handleUpdate = async () => {
-    setLoading(true);
-    try {
-      await fetch('/api/board/update', {
-        method: 'PATCH',
-        body: JSON.stringify({
-          currentBoard,
-          updatedBoard,
-        }),
-      });
+    if (updatedBoard.name === '') {
+      setValidate(true);
+    } else {
+      setLoading(true);
+      try {
+        await fetch('/api/board/update', {
+          method: 'PATCH',
+          body: JSON.stringify({
+            currentBoard,
+            updatedBoard,
+          }),
+        });
 
-      setTimeout(() => {
-        editBoardModal.onClose();
-        toast.success('Board edited successfully!');
-      }, 500);
+        setTimeout(() => {
+          editBoardModal.onClose();
+          toast.success('Board edited successfully!');
+        }, 500);
 
-      globals.setCurrentBoard(updatedBoard.name);
-      globals.setHasChanged(globals.hasChanged);
-    } catch (error) {
-    } finally {
-      setLoading(false);
-      setShowModal(false);
-      setToggleStatus(false);
+        globals.setCurrentBoard(updatedBoard.name);
+        globals.setHasChanged(globals.hasChanged);
+      } catch (error) {
+      } finally {
+        setLoading(false);
+        setShowModal(false);
+        setToggleStatus(false);
+      }
     }
   };
 
@@ -134,31 +139,41 @@ const EditBoardModal = () => {
               />
             </div>
           </div>
-          <CustomInput
-            value={updatedBoard.name}
-            setValue={(e) => setUpdatedBoard({ ...updatedBoard, name: e.target.value })}
-            label="Board Name"
-            placeholder={currentBoard}
-          />
           <div>
-            <h3 className="font-semibold text-[15px] mb-2 text-white">Board Columns</h3>
-            <div className="flex flex-col gap-2">
-              {updatedBoard.columns &&
-                updatedBoard.columns.length > 0 &&
-                updatedBoard.columns.map((column, index) => (
-                  <div key={index}>
-                    <CustomInput
-                      disabled={true}
-                      value={updatedBoard.columns[index].name}
-                      setValue={() => {}}
-                      deleteIcon
-                      handleDelete={() => deleteColumn(column)}
-                      placeholder={column.name}
-                    />
-                  </div>
-                ))}
-            </div>
+            <CustomInput
+              value={updatedBoard.name}
+              setValue={(e) => {
+                setValidate(false);
+                const inputValue = e.target.value;
+                const capitalizedValue = inputValue.charAt(0).toUpperCase() + inputValue.slice(1);
+                setUpdatedBoard({ ...updatedBoard, name: capitalizedValue });
+              }}
+              label="Board Name"
+              placeholder={currentBoard}
+            />
+            {validate && <p className="mt-1 text-[14px] text-red">Board name can't be empty!</p>}
           </div>
+          {updatedBoard.columns && updatedBoard.columns.length > 0 && (
+            <div>
+              <h3 className="font-semibold text-[15px] mb-2 text-white">Board Columns</h3>
+              <div className="flex flex-col gap-2">
+                {updatedBoard.columns &&
+                  updatedBoard.columns.length > 0 &&
+                  updatedBoard.columns.map((column, index) => (
+                    <div key={index}>
+                      <CustomInput
+                        disabled={true}
+                        value={updatedBoard.columns[index].name}
+                        setValue={() => {}}
+                        deleteIcon
+                        handleDelete={() => deleteColumn(column)}
+                        placeholder={column.name}
+                      />
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
           <button
             onClick={addColumn}
             className="px-5 py-2 bg-white hover:bg-lightGray font-semibold rounded-full text-mainPurple"

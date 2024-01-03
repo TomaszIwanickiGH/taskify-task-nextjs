@@ -22,6 +22,8 @@ const TaskInfoModal = () => {
   //Update task functionality
   const [updatedTask, setUpdatedTask] = useState({});
   const [loading, setLoading] = useState(false);
+  const [validate, setValidate] = useState(false);
+  const [validateSubtasks, setValidateSubtasks] = useState(false);
 
   const fetchedBoards = globals.fetchedBoards;
   const board = fetchedBoards.boards.filter((board) => board.name === globals.currentBoard);
@@ -59,36 +61,47 @@ const TaskInfoModal = () => {
   }
 
   const updateTask = async () => {
-    setLoading(true);
-    try {
-      await fetch('/api/task/update', {
-        method: 'PATCH',
-        body: JSON.stringify({
-          boardName: globals.currentBoard,
-          id: globals.chosenTask.id,
-          status: globals.chosenTask.status,
-          updatedTask,
-        }),
-      });
+    if (updatedTask.title === '' || (updatedTask.subtasks && updatedTask.subtasks.some((subtask) => subtask.title === ''))) {
+      if (updatedTask.title === '') {
+        setValidate(true);
+      }
+      if (updatedTask.subtasks && updatedTask.subtasks.some((subtask) => subtask.title === '')) {
+        setValidateSubtasks(true);
+      }
+    } else {
+      setLoading(true);
+      try {
+        await fetch('/api/task/update', {
+          method: 'PATCH',
+          body: JSON.stringify({
+            boardName: globals.currentBoard,
+            id: globals.chosenTask.id,
+            status: globals.chosenTask.status,
+            updatedTask,
+          }),
+        });
 
-      setTimeout(() => {
-        editTaskModal.onClose();
-        toast.success('Task edited successfully!');
-      }, 500);
+        setTimeout(() => {
+          editTaskModal.onClose();
+          toast.success('Task edited successfully!');
+        }, 500);
 
-      globals.setHasChanged(globals.hasChanged);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setShowModal(false);
-      setToggleStatus(false);
-      setLoading(false);
+        globals.setHasChanged(globals.hasChanged);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setShowModal(false);
+        setToggleStatus(false);
+        setLoading(false);
+      }
     }
   };
 
   const handleClose = () => {
     setShowModal(false);
     setToggleStatus(false);
+    setValidate(false);
+    setValidateSubtasks(false);
 
     setTimeout(() => {
       editTaskModal.onClose();
@@ -119,34 +132,56 @@ const TaskInfoModal = () => {
               />
             </div>
           </div>
-          <CustomInput
-            value={updatedTask.title}
-            setValue={(e) => setUpdatedTask({ ...updatedTask, title: e.target.value })}
-            label="Title"
-            placeholder={title}
-          />
+          <div>
+            <CustomInput
+              value={updatedTask.title}
+              setValue={(e) => {
+                setValidate(false);
+                const inputValue = e.target.value;
+                const capitalizedValue = inputValue.charAt(0).toUpperCase() + inputValue.slice(1);
+                setUpdatedTask({ ...updatedTask, title: capitalizedValue });
+              }}
+              label="Title"
+              placeholder={title}
+            />
+            {validate && <p className="mt-1 text-[14px] text-red">Title can't be empty!</p>}
+          </div>
           <CustomInput
             value={updatedTask.description}
-            setValue={(e) => setUpdatedTask({ ...updatedTask, description: e.target.value })}
+            setValue={(e) => {
+              const inputValue = e.target.value;
+              const capitalizedValue = inputValue.charAt(0).toUpperCase() + inputValue.slice(1);
+              setUpdatedTask({ ...updatedTask, description: capitalizedValue });
+            }}
             textarea
             label="Description"
             placeholder={description ? description : 'Add description for this task'}
           />
-          <h3 className="text-white font-semibold text-[15px] tracking-wider">Subtasks</h3>
-          {updatedTask.subtasks.map((subtask, index) => (
-            <CustomInput
-              value={updatedTask.subtasks[index].title}
-              setValue={(e) => {
-                const updatedSubtask = [...updatedTask.subtasks];
-                updatedSubtask[index].title = e.target.value;
-                setUpdatedTask({ ...updatedTask, subtasks: updatedSubtask });
-              }}
-              key={index}
-              handleDelete={() => deleteSubtask(subtask)}
-              deleteIcon
-              placeholder={subtask.title}
-            />
-          ))}
+          {updatedTask.subtasks && updatedTask.subtasks.length > 0 && (
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <p className="text-white font-semibold text-[15px] tracking-wider">Subtasks</p>
+                {validateSubtasks && <p className="text-[15px] text-red">(Make sure to fill all fo them)</p>}
+              </div>
+
+              {updatedTask.subtasks.map((subtask, index) => (
+                <CustomInput
+                  value={updatedTask.subtasks[index].title}
+                  setValue={(e) => {
+                    setValidateSubtasks(false);
+                    const updatedSubtask = [...updatedTask.subtasks];
+                    const inputValue = e.target.value;
+                    updatedSubtask[index].title = inputValue.charAt(0).toUpperCase() + inputValue.slice(1);
+                    setUpdatedTask({ ...updatedTask, subtasks: updatedSubtask });
+                  }}
+                  key={index}
+                  handleDelete={() => deleteSubtask(subtask)}
+                  deleteIcon
+                  placeholder="e.g. Make coffee"
+                />
+              ))}
+            </div>
+          )}
           <button
             onClick={addSubtask}
             className="px-5 py-2 bg-white hover:bg-lightGray font-semibold rounded-full text-mainPurple"
