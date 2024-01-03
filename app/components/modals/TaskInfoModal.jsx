@@ -107,9 +107,11 @@ const TaskInfoModal = () => {
             </div>
           </div>
           <p className="text-mediumGray text-[15px]">{description ? description : 'No description for this task.'}</p>
-          <h3 className="text-white font-semibold text-[15px] tracking-wider">
-            Subtasks ({!hasChanged ? completedSubtasks : completed} of {subtasks.length})
-          </h3>
+          {subtasks && subtasks.length > 0 && (
+            <h3 className="text-white font-semibold text-[15px] tracking-wider">
+              Subtasks ({!hasChanged ? completedSubtasks : completed} of {subtasks.length})
+            </h3>
+          )}
           {subtasks.map((task, index) => (
             <Subtask
               key={index}
