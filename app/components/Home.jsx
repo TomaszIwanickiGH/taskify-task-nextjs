@@ -6,7 +6,10 @@ import TasksContainer from './TasksContainer';
 import useGlobals from '../hooks/useGlobals';
 import useEditBoardModal from '../hooks/board/useEditBoardModal';
 
+import { useRouter } from 'next/navigation';
+
 const Home = () => {
+  const router = useRouter();
   const globals = useGlobals();
 
   const sidebar = globals.isSidebarOpen;
@@ -23,6 +26,7 @@ const Home = () => {
     };
 
     fetchBoards();
+    router.push('/');
   }, [globals.hasChanged]);
 
   const fetchedBoards = globals.fetchedBoards;
