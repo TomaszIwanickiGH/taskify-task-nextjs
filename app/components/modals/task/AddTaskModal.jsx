@@ -59,7 +59,9 @@ const AddTaskModal = () => {
         }, 500);
 
         globals.setHasChanged(globals.hasChanged);
-        window.location.reload();
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
         setNewTask({
           title: '',
           description: '',
