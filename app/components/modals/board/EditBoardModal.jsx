@@ -97,6 +97,9 @@ const EditBoardModal = () => {
 
         globals.setCurrentBoard(updatedBoard.name);
         globals.setHasChanged(globals.hasChanged);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1200);
       } catch (error) {
       } finally {
         setLoading(false);

@@ -43,6 +43,9 @@ const DeleteTaskModal = () => {
       }, 500);
 
       globals.setHasChanged(globals.hasChanged);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1200);
     } catch (error) {
     } finally {
       setShowModal(false);

@@ -44,6 +44,9 @@ const DeleteBoardModal = () => {
       }, 500);
       globals.setCurrentBoard('Platform Launch');
       globals.setHasChanged(globals.hasChanged);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1200);
     } catch (error) {
       console.log(error);
     } finally {

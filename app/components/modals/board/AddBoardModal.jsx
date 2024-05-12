@@ -99,6 +99,9 @@ const AddBoardModal = () => {
         }, 500);
 
         globals.setHasChanged(globals.hasChanged);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1200);
         globals.setCurrentBoard(boardDetails.name);
       } catch (error) {
         console.log(error);
